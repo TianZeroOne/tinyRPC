@@ -12,7 +12,7 @@ namespace tinyRPC {
 
 
 template<typename... Args>
-std::string formatString(const char* str, Args&&... args) {
+std::string formatString(const char* str, Args&&... args) {  // c语言的格式打印
     
     int size = snprintf(nullptr, 0, str, args...); // 格式化输出字符串
 

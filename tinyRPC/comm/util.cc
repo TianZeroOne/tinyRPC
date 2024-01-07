@@ -7,7 +7,7 @@ namespace tinyRPC {
 
 static int g_pid = 0;
 
-static thread_local int g_thread_id = 0;
+static thread_local int g_thread_id = 0; // 保证每个线程的存活周期
 
 pid_t getPid() {
     if (g_pid != 0) {

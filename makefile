@@ -61,10 +61,10 @@ NET_OBJ := $(patsubst $(PATH_NET)/%.cc, $(PATH_OBJ)/%.o, $(wildcard $(PATH_NET)/
 
 # COR_CTX_SWAP := coctx_swap.o
 
-ALL_TESTS : $(PATH_BIN)/test_log
+ALL_TESTS : $(PATH_BIN)/test_log $(PATH_BIN)/test_eventloop
 # ALL_TESTS : $(PATH_BIN)/test_tinypb_server $(PATH_BIN)/test_http_server $(PATH_BIN)/test_coroutine $(PATH_BIN)/test_tinypb_server_client\
 
-TEST_CASE_OUT := $(PATH_BIN)/test_log
+TEST_CASE_OUT := $(PATH_BIN)/test_log $(PATH_BIN)/test_eventloop
 # TEST_CASE_OUT := $(PATH_BIN)/test_tinypb_server $(PATH_BIN)/test_http_server $(PATH_BIN)/test_tinypb_server_client\
 
 LIB_OUT := $(PATH_LIB)/libtinyrpc.a
@@ -82,6 +82,9 @@ LIB_OUT := $(PATH_LIB)/libtinyrpc.a
 # 	$(CXX) $(CXXFLAGS) $(PATH_TESTCASES)/test_coroutine.cc -o $@ $(LIB_OUT) $(LIBS) -ldl -pthread $(PLUGIN_LIB)
 $(PATH_BIN)/test_log: $(LIB_OUT)
 	$(CXX) $(CXXFLAGS) $(PATH_TESTCASES)/test_log.cc -o $@ $(LIB_OUT) $(LIBS) -ldl -pthread
+
+$(PATH_BIN)/test_eventloop: $(LIB_OUT)
+	$(CXX) $(CXXFLAGS) $(PATH_TESTCASES)/test_eventloop.cc -o $@ $(LIB_OUT) $(LIBS) -ldl -pthread
 
 # $(LIB_OUT): $(COMM_OBJ) $(COROUTINE_OBJ) $(PATH_OBJ)/coctx_swap.o $(NET_OBJ) $(HTTP_OBJ) $(TCP_OBJ) $(TINYPB_OBJ)
 # 	cd $(PATH_OBJ) && ar rcv libtinyrpc.a *.o && cp libtinyrpc.a ../lib/
