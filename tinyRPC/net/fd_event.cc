@@ -7,6 +7,9 @@ namespace tinyRPC {
 FdEvent::FdEvent(int fd) : m_fd(fd) {
     memset(&m_listen_events, 0, sizeof(m_listen_events)); // 初始化
 }
+FdEvent::FdEvent() {
+    memset(&m_listen_events, 0, sizeof(m_listen_events)); // 初始化
+}
 
 FdEvent::~FdEvent() {
 

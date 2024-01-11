@@ -55,6 +55,8 @@ EventLoop::EventLoop() {
 
     initWakeUpEvent();
 
+    initTimer();
+
     INFOLOG("succ create event loop in thread %d", m_thread_id);
     t_current_eventloop = this;
 }
@@ -65,6 +67,19 @@ EventLoop::~EventLoop() {
         delete m_wakeup_fd_event;
         m_wakeup_fd_event = NULL;
     }
+    if (m_timer) {
+        delete m_timer;
+        m_timer = NULL;
+    }
+}
+
+void EventLoop::initTimer() {
+    m_timer = new Timer();
+    addEpollEvent(m_timer);
+}
+
+void EventLoop::addTimerEvent(TimerEvent::s_ptr event) {
+    m_timer->addTimerEvent(event);
 }
 
 void EventLoop::initWakeUpEvent() {
@@ -101,6 +116,11 @@ void EventLoop::loop() {
                 cb();
             }
         }
+
+        // 如果有定时任务需要执行，那么执行
+        // 1. 怎么判断一个定时任务需要执行？now() > TimerEvent.arrtive_time
+        // 2. arrtive_time 如何让 eventloop 监听
+
         
         int timeout = g_epoll_max_timeout;
         epoll_event result_events[g_epoll_max_events];

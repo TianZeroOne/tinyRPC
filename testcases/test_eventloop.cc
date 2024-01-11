@@ -4,10 +4,12 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
+#include <memory>
 #include "tinyRPC/comm/log.h"
 #include "tinyRPC/comm/config.h"
 #include "tinyRPC/net/fd_event.h"
 #include "tinyRPC/net/eventloop.h"
+#include "tinyRPC/net/timer_event.h"
 
 int main() {
 
@@ -52,6 +54,15 @@ int main() {
     });
 
     eventloop->addEpollEvent(&event);
+
+    int i = 0;
+    tinyRPC::TimerEvent::s_ptr timer_event = std::make_shared<tinyRPC::TimerEvent>(
+        1000, true, [&i]() {
+            INFOLOG("trigger timer event, count=%d", i++);
+        }
+    );
+    
+    eventloop->addTimerEvent(timer_event);
     eventloop->loop();
 
     return 0;

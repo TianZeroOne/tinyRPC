@@ -7,6 +7,7 @@
 #include "tinyRPC/comm/mutex.h"
 #include "tinyRPC/net/fd_event.h"
 #include "tinyRPC/net/wakeup_fd_event.h"
+#include "tinyRPC/net/timer.h"
 
 namespace tinyRPC {
 class EventLoop {
@@ -28,11 +29,15 @@ class EventLoop {
         bool isInLoopThread();
 
         void addTask(std::function<void()> cb, bool is_wake_up = false);
+
+        void addTimerEvent(TimerEvent::s_ptr event);
     
     private:
         void dealWakeup();
 
         void initWakeUpEvent();
+
+        void initTimer();
 
 
     private:
@@ -49,7 +54,7 @@ class EventLoop {
 
         Mutex m_mutex;
 
-
+        Timer* m_timer {NULL};
 
 };
 
