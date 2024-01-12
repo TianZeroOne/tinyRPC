@@ -11,6 +11,7 @@
 #include "tinyRPC/net/eventloop.h"
 #include "tinyRPC/net/timer_event.h"
 #include "tinyRPC/net/io_thread.h"
+#include "tinyRPC/net/io_thread_group.h"
 
 void test_io_thread() {
     
@@ -56,13 +57,24 @@ void test_io_thread() {
         }
     );
 
-    tinyRPC::IOThread io_thread;
+    // tinyRPC::IOThread io_thread;
 
-    io_thread.getEventLoop()->addEpollEvent(&event);
-    io_thread.getEventLoop()->addTimerEvent(timer_event);
-    io_thread.start();
+    // io_thread.getEventLoop()->addEpollEvent(&event);
+    // io_thread.getEventLoop()->addTimerEvent(timer_event);
+    // io_thread.start();
 
-    io_thread.join();
+    // io_thread.join();
+
+    tinyRPC::IOThreadGroup io_thread_group(2);
+    tinyRPC::IOThread* io_thread = io_thread_group.getIOThread();
+    io_thread->getEventLoop()->addEpollEvent(&event);
+    io_thread->getEventLoop()->addTimerEvent(timer_event);
+
+    tinyRPC::IOThread* io_thread2 = io_thread_group.getIOThread();
+    io_thread2->getEventLoop()->addEpollEvent(&event);
+
+    io_thread_group.start();
+    io_thread_group.join();
 
 
 }

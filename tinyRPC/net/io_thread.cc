@@ -10,6 +10,10 @@ IOThread::IOThread() {
 
     int rt = sem_init(&m_init_semaphore, 0, 0);
     assert(rt == 0);
+
+    rt = sem_init(&m_start_semaphore, 0, 0);
+    assert(rt == 0);
+
     pthread_create(&m_thread, NULL, &IOThread::Main, this); // this 是传递的参数，也就是该对象IOThread
 
     // wait，直到新线程执行完 Main 函数的前置
@@ -20,7 +24,7 @@ IOThread::IOThread() {
 }
 
 IOThread::~IOThread() {
-    m_event_loop->stop(); // 析构函数会首先停止，导致直接结束
+    m_event_loop->stop(); // 会导致停止 loop 循环
     sem_destroy(&m_init_semaphore);
 
     pthread_join(m_thread, NULL);
