@@ -201,5 +201,11 @@ bool EventLoop::isInLoopThread() { // 判断当前线程是否是IO线程
     return getThreadId() == m_thread_id;
 }
 
+EventLoop* EventLoop::GetCurrentEventLoop() {
+    if (!t_current_eventloop) {
+        t_current_eventloop = new EventLoop();
+    }
+    return t_current_eventloop;
+}
 
 }
