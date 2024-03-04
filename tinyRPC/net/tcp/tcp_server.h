@@ -1,10 +1,12 @@
 #ifndef TINYRPC_NET_TCP_TCP_SERVER_H
 #define TINYRPC_NET_TCP_TCP_SERVER_H
 
+#include <set>
 #include "tinyRPC/net/tcp/tcp_acceptor.h"
 #include "tinyRPC/net/tcp/net_addr.h"
 #include "tinyRPC/net/eventloop.h"
 #include "tinyRPC/net/io_thread_group.h"
+#include "tinyRPC/net/tcp/tcp_connection.h"
 
 namespace tinyRPC {
 class TcpServer {
@@ -32,6 +34,8 @@ class TcpServer {
         FdEvent* m_listen_fd_event;
 
         int m_client_counts {0};
+
+        std::set<TcpConnection::s_ptr> m_client;
 };
 
 }

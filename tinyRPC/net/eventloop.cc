@@ -18,20 +18,22 @@
     if (rt == -1) { \
         ERRORLOG("failed epoll_ctl when add fd %d, errno=%d, error=%s", event->getFd(), errno, strerror(errno)); \
     } \
+    m_listen_fds.insert(event->getFd()); \
     DEBUGLOG("add event success, fd[%d]", event->getFd()); \
 
 #define DELETE_TO_EPOLL() \
-        auto it = m_listen_fds.find(event->getFd()); \
-        if (it != m_listen_fds.end()) { \
-            return; \
-        } \
-        int op = EPOLL_CTL_DEL; \
-        epoll_event tmp = event->getEpollEvent(); \
-        int rt = epoll_ctl(m_epoll_fd, op, event->getFd(), &tmp); \
-        if (rt == -1) { \
-            ERRORLOG("failed epoll_ctl when delete fd %d, errno=%d, error=%s", event->getFd(), errno, strerror(errno)); \
-        } \
-        DEBUGLOG("delete event success, fd[%d]", event->getFd()); \
+    auto it = m_listen_fds.find(event->getFd()); \
+    if (it == m_listen_fds.end()) { \
+        return; \
+    } \
+    int op = EPOLL_CTL_DEL; \
+    epoll_event tmp = event->getEpollEvent(); \
+    int rt = epoll_ctl(m_epoll_fd, op, event->getFd(), &tmp); \
+    if (rt == -1) { \
+        ERRORLOG("failed epoll_ctl when delete fd %d, errno=%d, error=%s", event->getFd(), errno, strerror(errno)); \
+    } \
+    m_listen_fds.erase(event->getFd()); \
+    DEBUGLOG("delete event success, fd[%d]", event->getFd()); \
 
 namespace tinyRPC {
 // thread_local 关键字修饰的变量具有线程周期，变量在线程开始的时候被生成，线程结束的时候被销毁
