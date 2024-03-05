@@ -13,13 +13,17 @@ enum TcpState {
         HalfClosing = 3, // 半连接
         Closed = 4,
 };
+enum TcpConnectionType {
+    TcpConnectionByServer = 1, // 作为服务端使用，代表跟对端客户端的连接
+    TcpConnectionByClient = 2, // 作为客户端使用，代表跟对端服务端的连接
+};
 class TcpConnection {
 
     public:
         typedef std::shared_ptr<TcpConnection> s_ptr;
 
     public:
-        TcpConnection(IOThread* io_thread, int fd, int buffer_size, NetAddr::s_ptr peer_addr);
+        TcpConnection(EventLoop* event_loop, int fd, int buffer_size, NetAddr::s_ptr peer_addr);
 
         ~TcpConnection();
 
@@ -38,6 +42,8 @@ class TcpConnection {
         // 服务器主动关闭连接
         void shutdown();
 
+        void setConnectionType(TcpConnectionType type);
+
     private:
         NetAddr::s_ptr m_local_addr;
         NetAddr::s_ptr m_peer_addr;
@@ -45,7 +51,7 @@ class TcpConnection {
         TcpBuffer::s_ptr m_in_buffer; // 接受缓冲区
         TcpBuffer::s_ptr m_out_buffer; // 发送缓冲区
 
-        IOThread* m_io_thread {NULL}; // 代表持有该连接的 IO 线程
+        EventLoop* m_event_loop;
 
         FdEvent* m_fd_event {NULL};
 
@@ -53,7 +59,7 @@ class TcpConnection {
 
         int m_fd {0};
 
-
+        TcpConnectionType m_connection_type {TcpConnectionByServer};
 };
 
 }

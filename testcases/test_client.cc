@@ -9,6 +9,7 @@
 #include "tinyRPC/comm/log.h"
 #include "tinyRPC/comm/config.h"
 #include "tinyRPC/net/tcp/tcp_connection.h"
+#include "tinyRPC/net/tcp/tcp_client.h"
 
 void test_connect() {
     // 调用 connect 连接 server
@@ -40,12 +41,22 @@ void test_connect() {
 
 }
 
+void test_tcp_client() {
+    tinyRPC::IPNetAddr::s_ptr addr = std::make_shared<tinyRPC::IPNetAddr>("127.0.0.1", 12345);
+    tinyRPC::TcpClient client(addr);
+    client.connect([addr](){
+        DEBUGLOG("connect to [%s] success", addr->toString().c_str());
+    });
+}
+
 int main() {
 
     tinyRPC::Config::SetGlobalConfig("../conf/tinyrpc.xml");
     tinyRPC::Logger::InitGlobalLogger();
 
-    test_connect();
+    // test_connect();
+
+    test_tcp_client();
     
 
     return 0;

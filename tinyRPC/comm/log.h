@@ -26,20 +26,23 @@ std::string formatString(const char* str, Args&&... args) {  // c语言的格式
 // ##__VA_ARGS__代表可变参数的宏
 #define DEBUGLOG(str, ...) \
     if (tinyRPC::Logger::GetGlobalLogger()->getLogLevel() <= tinyRPC::Debug) { \
-        tinyRPC::Logger::GetGlobalLogger()->pushLog((new tinyRPC::LogEvent(tinyRPC::LogLevel::Debug))->toString() + "[" + std::string(__FILE__) + ":" + std::to_string(__LINE__) + "]\t" + tinyRPC::formatString(str, ##__VA_ARGS__) + "\n"); \
+        tinyRPC::Logger::GetGlobalLogger()->pushLog(tinyRPC::LogEvent(tinyRPC::LogLevel::Debug).toString() \
+        + "[" + std::string(__FILE__) + ":" + std::to_string(__LINE__) + "]\t" + tinyRPC::formatString(str, ##__VA_ARGS__) + "\n"); \
         tinyRPC::Logger::GetGlobalLogger()->log(); \
     } \
     
 
 #define INFOLOG(str, ...) \
     if (tinyRPC::Logger::GetGlobalLogger()->getLogLevel() <= tinyRPC::Info) { \
-        tinyRPC::Logger::GetGlobalLogger()->pushLog((new tinyRPC::LogEvent(tinyRPC::LogLevel::Info))->toString() + "[" + std::string(__FILE__) + ":" + std::to_string(__LINE__) + "]\t" + tinyRPC::formatString(str, ##__VA_ARGS__) + "\n"); \
+        tinyRPC::Logger::GetGlobalLogger()->pushLog(tinyRPC::LogEvent(tinyRPC::LogLevel::Info).toString() \
+        + "[" + std::string(__FILE__) + ":" + std::to_string(__LINE__) + "]\t" + tinyRPC::formatString(str, ##__VA_ARGS__) + "\n"); \
         tinyRPC::Logger::GetGlobalLogger()->log(); \
     } \
 
 #define ERRORLOG(str, ...) \
     if (tinyRPC::Logger::GetGlobalLogger()->getLogLevel() <= tinyRPC::Error) { \
-        tinyRPC::Logger::GetGlobalLogger()->pushLog((new tinyRPC::LogEvent(tinyRPC::LogLevel::Error))->toString() + "[" + std::string(__FILE__) + ":" + std::to_string(__LINE__) + "]\t" + tinyRPC::formatString(str, ##__VA_ARGS__) + "\n"); \
+        tinyRPC::Logger::GetGlobalLogger()->pushLog(tinyRPC::LogEvent(tinyRPC::LogLevel::Error).toString() \
+        + "[" + std::string(__FILE__) + ":" + std::to_string(__LINE__) + "]\t" + tinyRPC::formatString(str, ##__VA_ARGS__) + "\n"); \
         tinyRPC::Logger::GetGlobalLogger()->log(); \
     } \
 

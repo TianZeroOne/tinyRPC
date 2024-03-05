@@ -31,6 +31,8 @@ class EventLoop {
         void addTask(std::function<void()> cb, bool is_wake_up = false);
 
         void addTimerEvent(TimerEvent::s_ptr event);
+
+        bool isLooping();
     
     public:
         static EventLoop* GetCurrentEventLoop();
@@ -58,6 +60,8 @@ class EventLoop {
         Mutex m_mutex;
 
         Timer* m_timer {NULL};
+
+        bool m_is_looping {false};
 
 };
 
