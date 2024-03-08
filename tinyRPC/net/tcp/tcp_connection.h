@@ -1,10 +1,13 @@
 #ifndef TINYRPC_NET_TCP_TCP_CONNECTION_H
 #define TINYRPC_NET_TCP_TCP_CONNECTION_H
 
+#include <vector>
 #include <memory>
+#include <map>
 #include "tinyRPC/net/tcp/net_addr.h"
 #include "tinyRPC/net/tcp/tcp_buffer.h"
 #include "tinyRPC/net/io_thread.h"
+#include "tinyRPC/net/tcp/abstract_coder.h"
 
 namespace tinyRPC {
 enum TcpState {
@@ -23,7 +26,7 @@ class TcpConnection {
         typedef std::shared_ptr<TcpConnection> s_ptr;
 
     public:
-        TcpConnection(EventLoop* event_loop, int fd, int buffer_size, NetAddr::s_ptr peer_addr);
+        TcpConnection(EventLoop* event_loop, int fd, int buffer_size, NetAddr::s_ptr peer_addr, TcpConnectionType type = TcpConnectionByServer);
 
         ~TcpConnection();
 
@@ -44,6 +47,16 @@ class TcpConnection {
 
         void setConnectionType(TcpConnectionType type);
 
+        // 启动监听可写事件
+        void listenWrite();
+
+        // 启动监听可读事件
+        void listenRead();
+
+        void pushSentMessage(AbstractProtocol::s_ptr message, std::function<void(AbstractProtocol::s_ptr)> done);
+
+        void pushReadMessage(const std::string& req_id, std::function<void(AbstractProtocol::s_ptr)> done);
+
     private:
         NetAddr::s_ptr m_local_addr;
         NetAddr::s_ptr m_peer_addr;
@@ -60,6 +73,13 @@ class TcpConnection {
         int m_fd {0};
 
         TcpConnectionType m_connection_type {TcpConnectionByServer};
+
+        std::vector<std::pair<AbstractProtocol::s_ptr, std::function<void(AbstractProtocol::s_ptr)>>> m_write_dones;
+
+        // key 为 req_id
+        std::map<std::string, std::function<void(AbstractProtocol::s_ptr)>> m_read_dones;
+
+        AbstractCoder* m_coder {nullptr};
 };
 
 }

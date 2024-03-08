@@ -22,7 +22,7 @@ class TcpClient {
 
         // 异步的读取 Message
         // 如果读取 message 成功，会调用 done 函数，函数的入参就是 message 对象
-        void readMessage(AbstractProtocol::s_ptr request, std::function<void(AbstractProtocol::s_ptr)> done);
+        void readMessage(const std::string& req_id, std::function<void(AbstractProtocol::s_ptr)> done);
 
 
     private:

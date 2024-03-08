@@ -20,7 +20,7 @@ TcpClient::TcpClient(NetAddr::s_ptr peer_addr) : m_peer_addr(peer_addr) {
     m_fd_event = FdEventGroup::GetFdEventGroup()->getFdEvent(m_fd);
     m_fd_event->setNonBlock();
 
-    m_connection = std::make_shared<TcpConnection>(m_event_loop, m_fd, 128, m_peer_addr);
+    m_connection = std::make_shared<TcpConnection>(m_event_loop, m_fd, 128, m_peer_addr, TcpConnectionByClient);
     m_connection->setConnectionType(TcpConnectionByClient);
 
 }
@@ -44,16 +44,21 @@ void TcpClient::connect(std::function<void()> done) {
                 int error = 0;
                 socklen_t error_len = sizeof(error);
                 getsockopt(m_fd, SOL_SOCKET, SO_ERROR, &error, &error_len);
+                bool is_connect_succ = false;
                 if (error == 0) {
                     DEBUGLOG("connect [%s] success", m_peer_addr->toString().c_str());
-                    if (done) {
-                        done();
-                    }
+                    is_connect_succ = true;
+                    m_connection->setState(Conneted);
                 } else {
                     ERRORLOG("connect error, errno=%d, error=%s", errno, strerror(errno));
                 }
                 m_fd_event->cancle(FdEvent::OUT_EVENT); // 取消监听
                 m_event_loop->addEpollEvent(m_fd_event);
+
+                // 如果连接成功才会执行回调函数
+                if (is_connect_succ && done) {
+                    done();       
+                }
             });
             m_event_loop->addEpollEvent(m_fd_event);
 
@@ -68,10 +73,17 @@ void TcpClient::connect(std::function<void()> done) {
 }
 
 void TcpClient::writeMessage(AbstractProtocol::s_ptr request, std::function<void(AbstractProtocol::s_ptr)> done) {
-
+    // 1. 把 message 对象写入到 connection 的 buffer 中，done 也写入
+    // 2. 启动 connection 可写事件
+    m_connection->pushSentMessage(request, done);
+    m_connection->listenWrite();
 }
 
-void TcpClient::readMessage(AbstractProtocol::s_ptr request, std::function<void(AbstractProtocol::s_ptr)> done) {
+void TcpClient::readMessage(const std::string& req_id, std::function<void(AbstractProtocol::s_ptr)> done) {
+    // 1. 监听可读事件
+    // 2. 从 buffer 里面 decode 得到 message，判断 req_id 相等则读成功，执行其回调
+    m_connection->pushReadMessage(req_id, done);
+    m_connection->listenRead();
 
 }
 

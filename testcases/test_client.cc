@@ -10,6 +10,8 @@
 #include "tinyRPC/comm/config.h"
 #include "tinyRPC/net/tcp/tcp_connection.h"
 #include "tinyRPC/net/tcp/tcp_client.h"
+#include "tinyRPC/net/string_coder.h"
+#include "tinyRPC/net/tcp/abstract_protocol.h"
 
 void test_connect() {
     // 调用 connect 连接 server
@@ -44,8 +46,20 @@ void test_connect() {
 void test_tcp_client() {
     tinyRPC::IPNetAddr::s_ptr addr = std::make_shared<tinyRPC::IPNetAddr>("127.0.0.1", 12345);
     tinyRPC::TcpClient client(addr);
-    client.connect([addr](){
+    client.connect([addr, &client](){
         DEBUGLOG("connect to [%s] success", addr->toString().c_str());
+        std::shared_ptr<tinyRPC::StringProtocol> message = std::make_shared<tinyRPC::StringProtocol>();
+        message->info = "hello tinyRPC";
+        std::string msg = "123456";
+        message->setReqId(msg);
+        client.writeMessage(message, [](tinyRPC::AbstractProtocol::s_ptr msg_ptr) {
+            DEBUGLOG("send message success");
+        });
+
+        client.readMessage("123456", [](tinyRPC::AbstractProtocol::s_ptr msg_ptr) {
+            std::shared_ptr<tinyRPC::StringProtocol> message = std::dynamic_pointer_cast<tinyRPC::StringProtocol>(msg_ptr);
+            DEBUGLOG("req_id[%s], get response %s", message->getReqId().c_str(), message->info.c_str());
+        });
     });
 }
 
